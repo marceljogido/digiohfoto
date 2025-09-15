@@ -91,8 +91,17 @@ app.post("/upload", express.json({ limit: "200mb" }), async (req, res) => {
     await fs.promises.writeFile(filepath, buffer);
     console.log(`>> Saving file to local ${filepath}`);
 
-    const oriImageUrlComplete = await uploadFile(filepath, oriImageUrl);
-    console.log(`remoteFile: ${oriImageUrlComplete}`);
+    let oriImageUrlComplete;
+    try {
+      oriImageUrlComplete = await uploadFile(filepath, oriImageUrl);
+      console.log(`remoteFile (FTP): ${oriImageUrlComplete}`);
+      // Clean local original only if uploaded successfully (keep for fallback otherwise)
+      try { fs.unlinkSync(filepath); } catch (_) {}
+    } catch (ftpErr) {
+      console.warn('FTP upload failed for original image, using local URL:', ftpErr.message);
+      oriImageUrlComplete = `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+      console.log(`remoteFile (LOCAL): ${oriImageUrlComplete}`);
+    }
 
     console.log(">>generatedImage ... using uploaded URL:", oriImageUrlComplete
     );
