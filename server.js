@@ -130,15 +130,20 @@ app.post("/upload", express.json({ limit: "200mb" }), async (req, res) => {
       const gifPath = path.join(uploadDir, gifFilename);
       await fs.promises.writeFile(gifPath, gifBuffer);
       
-      // Upload GIF to FTP
-      gifUrl = await uploadFile(gifPath, `/gif/${gifFilename}`);
-      console.log(`✅ GIF uploaded: ${gifUrl}`);
-      
-      // Cleanup local GIF file
+      // Try upload to FTP; if fails, fallback to local URL
       try {
-        fs.unlinkSync(gifPath);
-      } catch (cleanupError) {
-        console.warn('Could not clean up GIF file:', cleanupError.message);
+        gifUrl = await uploadFile(gifPath, `/gif/${gifFilename}`);
+        console.log(`✅ GIF uploaded: ${gifUrl}`);
+        // Cleanup local GIF file only when remote upload succeeded
+        try {
+          fs.unlinkSync(gifPath);
+        } catch (cleanupError) {
+          console.warn('Could not clean up GIF file:', cleanupError.message);
+        }
+      } catch (ftpError) {
+        console.warn('FTP upload failed, serving GIF locally:', ftpError.message);
+        gifUrl = `${req.protocol}://${req.get('host')}/uploads/${gifFilename}`;
+        console.log(`➡️ Local GIF URL: ${gifUrl}`);
       }
     } catch (gifError) {
       console.warn('GIF creation failed:', gifError.message);
@@ -363,9 +368,22 @@ app.post("/createGif", express.json({ limit: "200mb" }), async (req, res) => {
     await fs.promises.writeFile(gifPath, gifBuffer);
     console.log(`✅ GIF saved to: ${gifPath}`);
     
-    // Upload to FTP if configured
-    const gifUrl = await uploadFile(gifPath, `/gif/${gifFilename}`);
-    console.log(`✅ GIF uploaded to: ${gifUrl}`);
+    // Try to upload; fallback to local URL when FTP not available
+    let gifUrl;
+    try {
+      gifUrl = await uploadFile(gifPath, `/gif/${gifFilename}`);
+      console.log(`✅ GIF uploaded to: ${gifUrl}`);
+      // Remove local when remote succeeded
+      try {
+        fs.unlinkSync(gifPath);
+      } catch (cleanupError) {
+        console.warn('Could not clean up GIF file:', cleanupError.message);
+      }
+    } catch (ftpError) {
+      console.warn('FTP upload failed, serving GIF locally:', ftpError.message);
+      gifUrl = `${req.protocol}://${req.get('host')}/uploads/${gifFilename}`;
+      console.log(`➡️ Local GIF URL: ${gifUrl}`);
+    }
     
     // Generate QR code for GIF
     const gifQrDataUrl = await QRCode.toDataURL(gifUrl);
