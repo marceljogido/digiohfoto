@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfigurasi LightX - DigiOH Photobox</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .btn {
+            background-color: #0078d7;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #005a9e;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .nav-buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Konfigurasi LightX Studio</h1>
+        
+        <form id="lightxConfigForm">
+            <div class="form-group">
+                <label for="lightXApi">LightX API Key:</label>
+                <input type="text" id="lightXApi" name="lightXApi" placeholder="Masukkan API Key LightX Anda">
+            </div>
+
+            <div class="form-group">
+                <label for="textprompt_outfit">Prompt untuk Ganti Pakaian:</label>
+                <textarea id="textprompt_outfit" name="textprompt_outfit" placeholder="Deskripsi untuk mengganti pakaian..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="textprompt_background_generator">Prompt untuk Generator Background:</label>
+                <textarea id="textprompt_background_generator" name="textprompt_background_generator" placeholder="Deskripsi untuk background..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="styleimageurl_face_swap">URL Gambar Style untuk Face Swap:</label>
+                <input type="text" id="styleimageurl_face_swap" name="styleimageurl_face_swap" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+                <label for="styleimageurl_aivirtualtryon">URL Gambar Style untuk AI Virtual Try-On:</label>
+                <input type="text" id="styleimageurl_aivirtualtryon" name="styleimageurl_aivirtualtryon" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+                <label for="styleimageurl_cartoon">URL Gambar Style untuk Cartoon:</label>
+                <input type="text" id="styleimageurl_cartoon" name="styleimageurl_cartoon" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+                <label for="textprompt_cartoon">Prompt untuk Cartoon:</label>
+                <textarea id="textprompt_cartoon" name="textprompt_cartoon" placeholder="Deskripsi untuk style cartoon..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="styleimageurl_avatar">URL Gambar Style untuk Avatar:</label>
+                <input type="text" id="styleimageurl_avatar" name="styleimageurl_avatar" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+                <label for="textprompt_avatar">Prompt untuk Avatar:</label>
+                <textarea id="textprompt_avatar" name="textprompt_avatar" placeholder="Deskripsi untuk style avatar..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="styleimageurl_avatar2">URL Gambar Style untuk Avatar 2:</label>
+                <input type="text" id="styleimageurl_avatar2" name="styleimageurl_avatar2" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+                <label for="textprompt_avatar2">Prompt untuk Avatar 2:</label>
+                <textarea id="textprompt_avatar2" name="textprompt_avatar2" placeholder="Deskripsi untuk style avatar 2..."></textarea>
+            </div>
+
+            <div style="text-align: center;">
+                <button type="submit" class="btn">💾 Simpan Konfigurasi</button>
+                <button type="button" class="btn btn-secondary" onclick="loadConfig()">🔄 Muat Konfigurasi</button>
+            </div>
+        </form>
+
+        <div id="status" class="status"></div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="window.location.href='index.html'">🏠 Kembali ke Beranda</button>
+            <button class="btn btn-secondary" onclick="window.location.href='geminiconfig.html'">🤖 Konfigurasi Gemini</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+        });
+
+        document.getElementById('lightxConfigForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const config = {};
+            
+            for (let [key, value] of formData.entries()) {
+                config[key] = value;
+            }
+
+            try {
+                const response = await fetch('/api/config_lightx', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                if (response.ok) {
+                    showStatus('Konfigurasi LightX berhasil disimpan!', 'success');
+                } else {
+                    showStatus('Gagal menyimpan konfigurasi LightX', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('Terjadi kesalahan saat menyimpan konfigurasi', 'error');
+            }
+        });
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config_lightx');
+                const config = await response.json();
+                
+                // Populate form fields
+                Object.keys(config).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = config[key] || '';
+                    }
+                });
+                
+                showStatus('Konfigurasi berhasil dimuat', 'success');
+            } catch (error) {
+                console.error('Error loading config:', error);
+                showStatus('Gagal memuat konfigurasi', 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

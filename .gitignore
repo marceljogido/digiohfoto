@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+.cache/
+coverage/
+*.log
+*.tmp
+.env
+digiOH_PhotoBox_config_ftp.json
+digiOH_PhotoBox_config_lightx.json

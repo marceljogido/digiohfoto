@@ -1,0 +1,30 @@
+{
+  "name": "digioh-photobox",
+  "version": "1.0.0",
+  "description": "AI-powered photobox application",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@google/genai": "^1.14.0",
+    "basic-ftp": "^4.6.5",
+    "canvas": "^3.2.0",
+    "compression": "^1.7.4",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.2",
+    "gifenc": "^1.0.3",
+    "gifencoder": "^2.0.1",
+    "multer": "^2.0.2",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.33.3"
+  },
+  "devDependencies": {
+    "eslint": "^9.32.0",
+    "prettier": "^3.6.2"
+  }
+}

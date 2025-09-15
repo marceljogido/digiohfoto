@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfigurasi Gemini - DigiOH Photobox</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        .btn {
+            background-color: #0078d7;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #005a9e;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .nav-buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #005a9e;
+        }
+        .info-box p {
+            margin-bottom: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Konfigurasi Google Gemini</h1>
+        
+        <div class="info-box">
+            <h3>ℹ️ Informasi Gemini API</h3>
+            <p><strong>Gemini API</strong> adalah layanan AI dari Google yang dapat memproses gambar dan teks untuk menghasilkan konten kreatif.</p>
+            <p>Untuk mendapatkan API Key, kunjungi <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></p>
+        </div>
+        
+        <form id="geminiConfigForm">
+            <div class="form-group">
+                <label for="geminiApi">Gemini API Key:</label>
+                <input type="text" id="geminiApi" name="geminiApi" placeholder="Masukkan API Key Gemini Anda" required>
+                <small style="color: #666;">Contoh: AIzaSyBvn9dTGloY1LUe0eMyqc0_TP9JRpeK79A</small>
+            </div>
+
+            <div class="form-group">
+                <label for="textprompt_for_gemini">Prompt untuk Gemini:</label>
+                <textarea id="textprompt_for_gemini" name="textprompt_for_gemini" placeholder="Masukkan instruksi atau prompt yang akan digunakan Gemini untuk memproses gambar..."></textarea>
+                <small style="color: #666;">Contoh: "Hi Gemini, bisakah gunakan wajah dalam foto ini kedalam foto lain? foto yang bertemakan 'steampunk'. Gunakan warna warna neon."</small>
+            </div>
+
+            <div style="text-align: center;">
+                <button type="submit" class="btn">💾 Simpan Konfigurasi</button>
+                <button type="button" class="btn btn-secondary" onclick="loadConfig()">🔄 Muat Konfigurasi</button>
+            </div>
+        </form>
+
+        <div id="status" class="status"></div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="window.location.href='index.html'">🏠 Kembali ke Beranda</button>
+            <button class="btn btn-secondary" onclick="window.location.href='lightxconfig.html'">⚙️ Konfigurasi LightX</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+        });
+
+        document.getElementById('geminiConfigForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const config = {};
+            
+            for (let [key, value] of formData.entries()) {
+                config[key] = value;
+            }
+
+            try {
+                const response = await fetch('/api/config_gemini', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                if (response.ok) {
+                    showStatus('Konfigurasi Gemini berhasil disimpan!', 'success');
+                } else {
+                    showStatus('Gagal menyimpan konfigurasi Gemini', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('Terjadi kesalahan saat menyimpan konfigurasi', 'error');
+            }
+        });
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config_gemini');
+                const config = await response.json();
+                
+                // Populate form fields
+                Object.keys(config).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = config[key] || '';
+                    }
+                });
+                
+                showStatus('Konfigurasi berhasil dimuat', 'success');
+            } catch (error) {
+                console.error('Error loading config:', error);
+                showStatus('Gagal memuat konfigurasi', 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

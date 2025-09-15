@@ -1,0 +1,5 @@
+{
+  "geminiApi": "AIzaSyBvn9dTGloY1LUe0eMyqc0_TP9JRpeK79A",
+  "textprompt_for_gemini": "Make the person in the photo look like they have a huge beard.",
+  "geminiModel": "gemini-2.0-flash-preview-image-generation"
+}
