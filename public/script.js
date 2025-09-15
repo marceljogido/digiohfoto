@@ -1182,6 +1182,19 @@ async function createCurrentPhotoGifAuto() {
         `;
       }
       
+      // Update QR viewer to include GIF QR when available
+      try {
+        if (result.gifQr) {
+          currentQRData.gif = result.gifQr;
+          const switchButtons = document.getElementById('qrSwitchButtons');
+          if (switchButtons) {
+            switchButtons.style.display = 'block';
+          }
+          // Keep showing photo QR by default; user can switch to GIF
+          updateQRDisplay();
+        }
+      } catch (_) {}
+
       // Add to photo history
       addToPhotoHistory(result.gifUrl, `GIF-${currentPhotoForGif.mode}`, new Date().toISOString());
       
