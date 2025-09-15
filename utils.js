@@ -28,10 +28,13 @@ function getLightxConfig() {
 }
 
 function getGeminiConfig() {
-  if (fs.existsSync(configPathGemini)) {
-    const config = JSON.parse(fs.readFileSync(configPathGemini, "utf8"));
-    return config;
-  }
+  const fileCfg = fs.existsSync(configPathGemini)
+    ? JSON.parse(fs.readFileSync(configPathGemini, "utf8"))
+    : {};
+  const envCfg = {
+    geminiApi: process.env.GEMINI_API_KEY || fileCfg.geminiApi,
+  };
+  return { ...fileCfg, ...envCfg };
 }
 
 function getFtpConfig() {
