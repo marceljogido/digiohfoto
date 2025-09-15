@@ -94,12 +94,13 @@ app.post("/upload", express.json({ limit: "200mb" }), async (req, res) => {
     const oriImageUrlComplete = await uploadFile(filepath, oriImageUrl);
     console.log(`remoteFile: ${oriImageUrlComplete}`);
 
-    console.log(">>generatedImage ...");
-    console.log("Input URL for generatedImage:", `${displayUrl}${oriImageUrl}`);
+    console.log(">>generatedImage ... using uploaded URL:", oriImageUrlComplete
+    );
     console.log("Selected API:", selectedApi);
     
+    // IMPORTANT: Use the actual uploaded URL returned by uploadFile
     const generatedImageResult = await generatedImage(
-      `${displayUrl}${oriImageUrl}`,
+      oriImageUrlComplete,
       selectedApi,
     );
     console.log("Generated image result:", generatedImageResult);
