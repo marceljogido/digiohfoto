@@ -356,7 +356,15 @@ app.post("/createGif", express.json({ limit: "200mb" }), async (req, res) => {
       processedLength: photos[0]?.processed?.length || 0
     });
 
-    const gifBuffer = await createAnimatedGif(photos);
+    // Ensure processed URL is absolute for fetch
+    const normalized = photos.map(p => ({
+      ...p,
+      processed: p.processed && p.processed.startsWith('http')
+        ? p.processed
+        : `${req.protocol}://${req.get('host')}${p.processed}`
+    }));
+
+    const gifBuffer = await createAnimatedGif(normalized);
     
     if (!gifBuffer || gifBuffer.length === 0) {
       throw new Error('Generated GIF buffer is empty');

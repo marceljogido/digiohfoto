@@ -90,48 +90,21 @@ function startCamera() {
 }
 
 // Event listeners for AI style buttons
-document.getElementById("create_avatar").onclick = async function () {
-  await take_snapshot("AVATAR");
-};
-document.getElementById("create_cartoon").onclick = async function () {
-  await take_snapshot("CARTOON");
-};
-document.getElementById("background_generator").onclick = async function () {
-  await take_snapshot("BACKGROUND_GENERATOR");
-};
-document.getElementById("outfit").onclick = async function () {
-  await take_snapshot("OUTFIT");
-};
-document.getElementById("face_swap").onclick = async function () {
-  await take_snapshot("FACE_SWAP");
-};
-document.getElementById("portrait").onclick = async function () {
-  await take_snapshot("PORTRAIT");
-};
-document.getElementById("ai_filter").onclick = async function () {
-  await take_snapshot("AIFILTER");
-};
-document.getElementById("hairstyle").onclick = async function () {
-  await take_snapshot("HAIRSTYLE");
-};
-document.getElementById("headshot").onclick = async function () {
-  await take_snapshot("HEADSHOT");
-};
-document.getElementById("virtual_tryon").onclick = async function () {
-  await take_snapshot("AIVIRTUALTRYON");
-};
-document.getElementById("product_photoshoot").onclick = async function () {
-  await take_snapshot("PRODUCT_PHOTOSHOOT");
-};
-document.getElementById("caricature").onclick = async function () {
-  await take_snapshot("CARICATURE");
-};
-document.getElementById("create_avatar2").onclick = async function () {
-  await take_snapshot("AVATAR2");
-};
-document.getElementById("gemini_generator").onclick = async function () {
-  await take_snapshot_with_gemini();
-};
+var el;
+el = document.getElementById("create_avatar"); if (el) el.onclick = async function () { await take_snapshot("AVATAR"); };
+el = document.getElementById("create_cartoon"); if (el) el.onclick = async function () { await take_snapshot("CARTOON"); };
+el = document.getElementById("background_generator"); if (el) el.onclick = async function () { await take_snapshot("BACKGROUND_GENERATOR"); };
+el = document.getElementById("outfit"); if (el) el.onclick = async function () { await take_snapshot("OUTFIT"); };
+el = document.getElementById("face_swap"); if (el) el.onclick = async function () { await take_snapshot("FACE_SWAP"); };
+el = document.getElementById("portrait"); if (el) el.onclick = async function () { await take_snapshot("PORTRAIT"); };
+el = document.getElementById("ai_filter"); if (el) el.onclick = async function () { await take_snapshot("AIFILTER"); };
+el = document.getElementById("hairstyle"); if (el) el.onclick = async function () { await take_snapshot("HAIRSTYLE"); };
+el = document.getElementById("headshot"); if (el) el.onclick = async function () { await take_snapshot("HEADSHOT"); };
+el = document.getElementById("virtual_tryon"); if (el) el.onclick = async function () { await take_snapshot("AIVIRTUALTRYON"); };
+el = document.getElementById("product_photoshoot"); if (el) el.onclick = async function () { await take_snapshot("PRODUCT_PHOTOSHOOT"); };
+el = document.getElementById("caricature"); if (el) el.onclick = async function () { await take_snapshot("CARICATURE"); };
+el = document.getElementById("create_avatar2"); if (el) el.onclick = async function () { await take_snapshot("AVATAR2"); };
+el = document.getElementById("gemini_generator"); if (el) el.onclick = async function () { await take_snapshot_with_gemini(); };
 
 document.getElementById("backButtonId").onclick = async function () {
   document.getElementById("results").innerHTML = "";
