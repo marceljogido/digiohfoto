@@ -5,7 +5,13 @@ const { pipeline } = require("stream");
 const { promisify } = require("util");
 const streamPipeline = promisify(pipeline);
 
-const displayUrl = "https://wsaseno.de/digiOH_files/";
+// Display URL will be read from config if provided, with a sensible default
+function getDisplayUrl() {
+  const cfg = getFtpConfig?.() || {};
+  const url = cfg.displayUrl || "https://wsaseno.de/digiOH_files/";
+  // Ensure it ends with a single trailing slash
+  return url.replace(/\/+$/,"") + "/";
+}
 
 const {
   sleep,
@@ -15,12 +21,16 @@ const {
 } = require("./utils");
 
 function getConfig() {
-  const config = getFtpConfig();
+  const config = getFtpConfig?.() || {};
   return {
-    host: config.ftpAddress,
-    user: config.ftpUsername,
-    password: config.ftpPassword,
-    secure: false, // true if FTPS
+    // Support both legacy keys (ftpAddress, ftpUsername, ftpPassword) and new keys (host, user, password)
+    host: config.host || config.ftpAddress,
+    user: config.user || config.ftpUsername,
+    password: config.password || config.ftpPassword,
+    port: config.port || 21,
+    secure: Boolean(config.secure), // true for FTPS
+    // Base path inside the FTP where files should be stored (e.g., "/digiOH_files")
+    remoteBasePath: (config.remotePath || "/").replace(/\\/g, "/"),
   };
 }
 
@@ -28,7 +38,13 @@ async function uploadToFTP(localPath, remotePath) {
   const client = new ftp.Client();
   try {
     const ftpConfig = getConfig();
-    await client.access(ftpConfig);
+    await client.access({
+      host: ftpConfig.host,
+      user: ftpConfig.user,
+      password: ftpConfig.password,
+      port: ftpConfig.port,
+      secure: ftpConfig.secure,
+    });
 
     // Ensure the remote directory exists
     const remoteDir = path.dirname(remotePath).replace(/\\/g, "/");
@@ -103,15 +119,19 @@ async function copyFile(fileUrl, remoteFile) {
 async function uploadFile(localFile, remoteFile) {
   console.log("📤 === FTP UPLOAD START ===");
   console.log(`📁 Local file: ${localFile}`);
-  console.log(`🌐 Remote file: ${remoteFile}`);
-  console.log(`🔗 Final URL will be: ${displayUrl}${remoteFile}`);
+  const cfg = getConfig();
+  // Ensure remote path prefixed with configured base path
+  const normalizedRemote = (cfg.remoteBasePath + "/" + String(remoteFile || "")).replace(/\\/g, "/").replace(/\/+/, "/");
+  console.log(`🌐 Remote file: ${normalizedRemote}`);
+  const baseUrl = getDisplayUrl();
+  console.log(`🔗 Final URL will be: ${baseUrl}${normalizedRemote}`);
 
   try {
     console.log("🔄 Starting FTP upload...");
-    await uploadToFTP(localFile, remoteFile);
+    await uploadToFTP(localFile, normalizedRemote);
     console.log("✅ FTP upload completed successfully!");
 
-    const finalUrl = `${displayUrl}${remoteFile}`;
+    const finalUrl = `${baseUrl}${normalizedRemote}`;
     console.log("🎉 Final URL:", finalUrl);
     return finalUrl;
   } catch (err) {

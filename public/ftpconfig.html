@@ -144,9 +144,15 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="remotePath">Path Remote:</label>
-                <input type="text" id="remotePath" name="remotePath" placeholder="/public_html/images/" value="/">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="remotePath">Path Remote (Base Folder di FTP):</label>
+                    <input type="text" id="remotePath" name="remotePath" placeholder="/digiOH_files" value="/digiOH_files">
+                </div>
+                <div class="form-group">
+                    <label for="displayUrl">Display URL (HTTP URL publik yang men-serve remotePath):</label>
+                    <input type="text" id="displayUrl" name="displayUrl" placeholder="https://wsaseno.de/digiOH_files">
+                </div>
             </div>
 
             <div style="text-align: center;">
