@@ -1,0 +1,8 @@
+﻿[phases.setup]
+# Native deps for node-canvas & sharp
+nixPkgs = [
+  "python3", "pkg-config", "cairo", "pango", "pixman", "libpng", "jpeg", "giflib", "freetype", "fontconfig", "glib"
+]
+
+[start]
+cmd = "node server.js"
