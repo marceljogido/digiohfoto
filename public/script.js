@@ -275,6 +275,34 @@ var imageName = new Date().toISOString().split(".")[0].replace(/[^\d]/gi, "");
     // Show QR viewer with both photo and GIF QR
     showQRViewer(result.qr, result.gifQr);
     document.getElementById("backButton").style.display = "flex";
+
+    // If server already created a GIF (LightX flow), render it inline
+    try {
+      if (result.gifUrl) {
+        const resultsDiv = document.getElementById("results");
+        const gifBlock = document.createElement('div');
+        gifBlock.style.marginTop = '30px';
+        gifBlock.style.padding = '20px';
+        gifBlock.style.background = '#f0f8ff';
+        gifBlock.style.borderRadius = '15px';
+        gifBlock.style.border = '2px solid #e6f3ff';
+        gifBlock.innerHTML = `
+          <h4 style="color: #333; margin-bottom: 15px;">
+            <i class="fas fa-film"></i> GIF Before/After (Server)
+          </h4>
+          <img src="${result.gifUrl}" alt="Before/After GIF" style="max-width: 100%; height: auto; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);" />
+          <div style="margin-top: 15px;">
+            <button onclick="showQRDownloadModal()" style="background: linear-gradient(145deg, #667eea, #764ba2); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin: 5px;">
+              <i class="fas fa-download"></i> Download GIF
+            </button>
+            <button onclick="shareImage('${result.gifUrl}')" style="background: linear-gradient(145deg, #ff6b6b, #ee5a52); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin: 5px;">
+              <i class="fas fa-share"></i> Share GIF
+            </button>
+          </div>
+        `;
+        resultsDiv.appendChild(gifBlock);
+      }
+    } catch (_) {}
   } catch (error) {
     console.error("Error generating image:", error);
     clearInterval(progressInterval);
