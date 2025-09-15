@@ -16,10 +16,15 @@ function sleep(ms) {
 }
 
 function getLightxConfig() {
-  if (fs.existsSync(configPathLightX)) {
-    const config = JSON.parse(fs.readFileSync(configPathLightX, "utf8"));
-    return config;
-  }
+  const fileCfg = fs.existsSync(configPathLightX)
+    ? JSON.parse(fs.readFileSync(configPathLightX, "utf8"))
+    : {};
+  // Allow overriding via environment variables (persists across deploys)
+  const envCfg = {
+    lightXApi: process.env.LIGHTX_API_KEY || fileCfg.lightXApi,
+    // Optional: allow some prompts/style URLs via env if desired later
+  };
+  return { ...fileCfg, ...envCfg };
 }
 
 function getGeminiConfig() {
@@ -30,10 +35,24 @@ function getGeminiConfig() {
 }
 
 function getFtpConfig() {
-  if (fs.existsSync(configPathFtp)) {
-    const config = JSON.parse(fs.readFileSync(configPathFtp, "utf8"));
-    return config;
-  }
+  const fileCfg = fs.existsSync(configPathFtp)
+    ? JSON.parse(fs.readFileSync(configPathFtp, "utf8"))
+    : {};
+  // Env overrides for reliability in Railway
+  const envCfg = {
+    host: process.env.FTP_HOST,
+    user: process.env.FTP_USER,
+    password: process.env.FTP_PASSWORD,
+    port: process.env.FTP_PORT ? Number(process.env.FTP_PORT) : undefined,
+    secure: typeof process.env.FTP_SECURE !== 'undefined' ? process.env.FTP_SECURE === 'true' : undefined,
+    remotePath: process.env.FTP_REMOTE_PATH,
+    displayUrl: process.env.FTP_DISPLAY_URL,
+    // Back-compat keys expected elsewhere
+    ftpAddress: process.env.FTP_HOST,
+    ftpUsername: process.env.FTP_USER,
+    ftpPassword: process.env.FTP_PASSWORD,
+  };
+  return { ...fileCfg, ...envCfg };
 }
 
 async function addWatermark(inputPath, watermarkPath, outputPath) {
