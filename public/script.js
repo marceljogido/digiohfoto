@@ -274,6 +274,9 @@ var imageName = new Date().toISOString().split(".")[0].replace(/[^\d]/gi, "");
     
     // Show QR viewer with both photo and GIF QR
     showQRViewer(result.qr, result.gifQr);
+    if (!result.gifQr && result.gifError) {
+      console.warn('GIF error from server:', result.gifError);
+    }
     document.getElementById("backButton").style.display = "flex";
 
     // If server already created a GIF (LightX flow), render it inline

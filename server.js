@@ -147,6 +147,8 @@ app.post("/upload", express.json({ limit: "200mb" }), async (req, res) => {
       }
     } catch (gifError) {
       console.warn('GIF creation failed:', gifError.message);
+      // Attach details to response so UI can show meaningful info
+      res.locals.gifError = gifError.message;
       // Continue without GIF if it fails
     }
 
@@ -157,8 +159,9 @@ app.post("/upload", express.json({ limit: "200mb" }), async (req, res) => {
       status: "ok",
       imageUrl: generatedImageResult,
       qr: qrDataUrl,           // QR untuk foto AI
-      gifUrl: gifUrl,          // URL GIF
-      gifQr: gifQrDataUrl,     // QR untuk GIF (BARU)
+      gifUrl: gifUrl || null,          // URL GIF
+      gifQr: gifQrDataUrl || null,     // QR untuk GIF (BARU)
+      gifError: res.locals.gifError || null,
     });
   } catch (err) {
     res.status(500).json({ error: "Error saving file", details: err.message });

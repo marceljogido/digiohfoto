@@ -42,7 +42,17 @@ async function processImageToBuffer(imageData, size) {
     // URL - fetch the image
     try {
       console.log(`📥 Fetching image from URL: ${imageData}`);
-      const response = await fetch(imageData);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      const response = await fetch(imageData, {
+        redirect: 'follow',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; DigiOH/1.0; +https://wsaseno.de)',
+          'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
+        },
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
       }
