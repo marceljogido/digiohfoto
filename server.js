@@ -50,6 +50,33 @@ app.use(express.static("public"));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.urlencoded({ limit: "200mb", extended: true }));
 
+// Helper: normalize asset URL to prefer remote FTP URL; fallback to absolute local URL
+function isHttpUrl(u) {
+  return /^https?:\/\//i.test(u || "");
+}
+
+async function ensureRemoteUrl(url, req) {
+  try {
+    if (isHttpUrl(url)) return url;
+    if (typeof url === 'string' && url.startsWith('/uploads/')) {
+      const filename = path.basename(url);
+      const localPath = path.join(uploadDir, filename);
+      try {
+        // Try uploading the local file now to obtain the public display URL
+        const remoteUrl = await uploadFile(localPath, `/${filename}`);
+        return remoteUrl;
+      } catch (_) {
+        // Fallback to absolute local URL if FTP not available
+        return `${req.protocol}://${req.get('host')}${url}`;
+      }
+    }
+    // Any other relative path → absolute local URL
+    return `${req.protocol}://${req.get('host')}${url}`;
+  } catch (_) {
+    return url;
+  }
+}
+
 ////////////////////////////////
 // create avatar from uploaded image
 ////////////////////////////////
@@ -161,14 +188,16 @@ app.post("/upload", express.json({ limit: "200mb" }), async (req, res) => {
       // Continue without GIF if it fails
     }
 
-    const qrDataUrl = await QRCode.toDataURL(generatedImageResult);
-    const gifQrDataUrl = gifUrl ? await QRCode.toDataURL(gifUrl) : null; // QR untuk GIF
+    const normalizedImageUrl = await ensureRemoteUrl(generatedImageResult, req);
+    const normalizedGifUrl = gifUrl ? await ensureRemoteUrl(gifUrl, req) : null;
+    const qrDataUrl = await QRCode.toDataURL(normalizedImageUrl);
+    const gifQrDataUrl = normalizedGifUrl ? await QRCode.toDataURL(normalizedGifUrl) : null; // QR untuk GIF
     
     res.json({
       status: "ok",
-      imageUrl: generatedImageResult,
+      imageUrl: normalizedImageUrl,
       qr: qrDataUrl,           // QR untuk foto AI
-      gifUrl: gifUrl || null,          // URL GIF
+      gifUrl: normalizedGifUrl || null,          // URL GIF
       gifQr: gifQrDataUrl || null,     // QR untuk GIF (BARU)
       gifError: res.locals.gifError || null,
     });
@@ -205,11 +234,12 @@ app.post("/processWithGemini", express.json({ limit: "200mb" }), async (req, res
   //---- END - get picture data from camera, base64 encoded
 
   const generatedImageResult = await processImageWithGemini(buffer.toString("base64"));
-  const qrDataUrl = await QRCode.toDataURL(generatedImageResult); // Always respond with JSON
+  const normalizedImageUrl = await ensureRemoteUrl(generatedImageResult, req);
+  const qrDataUrl = await QRCode.toDataURL(normalizedImageUrl); // Always respond with JSON
 
   res.json({
       status: "ok",
-      imageUrl: generatedImageResult,
+      imageUrl: normalizedImageUrl,
       qr: qrDataUrl,
     });
 
@@ -311,15 +341,17 @@ app.post("/processWithGeminiModes", express.json({ limit: "200mb" }), async (req
     }
     
     console.log("📱 Generating QR code...");
-    const qrDataUrl = await QRCode.toDataURL(generatedImageResult);
+    const normalizedImageUrl = await ensureRemoteUrl(generatedImageResult, req);
+    const normalizedGifUrl = gifUrl ? await ensureRemoteUrl(gifUrl, req) : null;
+    const qrDataUrl = await QRCode.toDataURL(normalizedImageUrl);
     console.log("✅ QR code generated");
     
     console.log("📤 Sending response to client...");
     res.json({
       status: "ok",
-      imageUrl: generatedImageResult,
+      imageUrl: normalizedImageUrl,
       qr: qrDataUrl,           // QR untuk foto AI
-      gifUrl: gifUrl,          // URL GIF
+      gifUrl: normalizedGifUrl,          // URL GIF
       gifQr: gifQrDataUrl,     // QR untuk GIF
       mode: mode,
       originalImage: base64data
