@@ -643,20 +643,23 @@ document.addEventListener('keydown', function(e) {
 function hideUnavailableFilters(config){
   const isFilled = (v) => typeof v === 'string' && v.trim().length > 0;
 
+  // If API key is present, show all LightX buttons by default
+  const lightxAvailable = isFilled(config.lightXApi);
+
   const requirements = [
-    { id: 'create_avatar', ok: isFilled(config.styleimageurl_avatar) || isFilled(config.textprompt_avatar) },
-    { id: 'create_avatar2', ok: isFilled(config.styleimageurl_avatar2) || isFilled(config.textprompt_avatar2) },
-    { id: 'create_cartoon', ok: isFilled(config.styleimageurl_cartoon) || isFilled(config.textprompt_cartoon) },
-    { id: 'background_generator', ok: isFilled(config.textprompt_background_generator) },
-    { id: 'outfit', ok: isFilled(config.textprompt_outfit) },
-    { id: 'face_swap', ok: isFilled(config.styleimageurl_face_swap) },
-    { id: 'portrait', ok: isFilled(config.styleimageurl_portrait) || isFilled(config.textprompt_portrait) },
-    { id: 'ai_filter', ok: isFilled(config.styleimageurl_aifilter) || isFilled(config.textprompt_aifilter) },
-    { id: 'hairstyle', ok: isFilled(config.textprompt_hairstyle) },
-    { id: 'headshot', ok: isFilled(config.textprompt_headshot) },
-    { id: 'virtual_tryon', ok: isFilled(config.styleimageurl_aivirtualtryon) },
-    { id: 'product_photoshoot', ok: isFilled(config.styleimageurl_product_photoshoot) || isFilled(config.textprompt_product_photoshoot) },
-    { id: 'caricature', ok: isFilled(config.styleimageurl_caricature) || isFilled(config.textprompt_caricature) },
+    { id: 'create_avatar', ok: lightxAvailable || isFilled(config.styleimageurl_avatar) || isFilled(config.textprompt_avatar) },
+    { id: 'create_avatar2', ok: lightxAvailable || isFilled(config.styleimageurl_avatar2) || isFilled(config.textprompt_avatar2) },
+    { id: 'create_cartoon', ok: lightxAvailable || isFilled(config.styleimageurl_cartoon) || isFilled(config.textprompt_cartoon) },
+    { id: 'background_generator', ok: lightxAvailable || isFilled(config.textprompt_background_generator) },
+    { id: 'outfit', ok: lightxAvailable || isFilled(config.textprompt_outfit) },
+    { id: 'face_swap', ok: lightxAvailable || isFilled(config.styleimageurl_face_swap) },
+    { id: 'portrait', ok: lightxAvailable || isFilled(config.styleimageurl_portrait) || isFilled(config.textprompt_portrait) },
+    { id: 'ai_filter', ok: lightxAvailable || isFilled(config.styleimageurl_aifilter) || isFilled(config.textprompt_aifilter) },
+    { id: 'hairstyle', ok: lightxAvailable || isFilled(config.textprompt_hairstyle) },
+    { id: 'headshot', ok: lightxAvailable || isFilled(config.textprompt_headshot) },
+    { id: 'virtual_tryon', ok: lightxAvailable || isFilled(config.styleimageurl_aivirtualtryon) },
+    { id: 'product_photoshoot', ok: lightxAvailable || isFilled(config.styleimageurl_product_photoshoot) || isFilled(config.textprompt_product_photoshoot) },
+    { id: 'caricature', ok: lightxAvailable || isFilled(config.styleimageurl_caricature) || isFilled(config.textprompt_caricature) },
   ];
 
   requirements.forEach(({id, ok}) => {
@@ -667,6 +670,7 @@ function hideUnavailableFilters(config){
       el.title = 'Sembunyikan: belum dikonfigurasi di LightX Config';
     } else {
       el.style.display = '';
+      el.title = '';
     }
   });
 
